@@ -1,0 +1,6 @@
+argparse
+arrow
+filetype
+nextcloud-api-wrapper
+python-telegram-bot
+toml

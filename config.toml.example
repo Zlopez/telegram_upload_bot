@@ -1,0 +1,36 @@
+# Telegram bot API token, you will get it when creating new bot
+# with @BotFather on Telegram
+bot_api_token = "Put your bot token here"
+# Telegram chat id to post messages to
+# The bot must be already in the channel
+telegram_chat_id = 111000
+
+# Path to timestamp file
+# This file is used for bot to check which files were created till
+# the last run. Bot needs to have write permission in the folder.
+# This file will be created on the first run of the bot and all
+# files in the folders will be uploaded. You can prevent this by
+# running with empty folders section first.
+# Default: 'timestamp'
+timestamp_file = "timestamp"
+
+# Nextcloud related configuration
+# URL of the nextcloud instance
+# Credentials to use for login
+nextcloud_url = "https://nextcloud.org"
+nextcloud_username = "username"
+nextcloud_password = "password"
+
+# This section contains all the folders to go through
+# Keep this empty if you just want to create a timestamp
+# file.
+[folders]
+
+# Section for specific folder
+[folders.folder1]
+# Name of the folder for bot to share
+name="My photos"
+# Link to shared album for bot to add to message
+link="https://nextcloud.org/album"
+# Path on nextcloud server where to check for new files
+path="album/"
