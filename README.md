@@ -7,22 +7,18 @@ chat. It currently only uploads images and videos.
 
 ## Quick start
 1. Clone the repository
-  
   `git clone https://github.com/Zlopez/telegram_upload_bot.git`
 
 2. Create a python virtualenv
-
   `python -m venv .venv`
   
 3. Create config file
-
   `cp config.toml.example config.toml`
   
 4. Update the config file. See comments for more info.
 
 5. Run the bot
-
-  `python telegram_upload_bot/telegram_upload_bot.py**
+  `python telegram_upload_bot/telegram_upload_bot.py`
 
 ---
 **NOTE**
