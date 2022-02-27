@@ -11,6 +11,8 @@ telegram_chat_id = 111000
 # This file will be created on the first run of the bot and all
 # files in the folders will be uploaded. You can prevent this by
 # running with empty folders section first.
+# This file contains the newest last_modified timestamp of the files
+# found in the folders.
 # Default: 'timestamp'
 timestamp_file = "timestamp"
 

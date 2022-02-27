@@ -78,7 +78,7 @@ def read_timestamp(filename: str) -> Optional[arrow.Arrow]:
       Arrow object created from the timestamp or None.
     """
     if filename:
-        if os.path.isfile(config):
+        if os.path.isfile(filename):
             with open(filename) as f:
                 timestamp = f.readline()
                 return arrow.Arrow.fromtimestamp(timestamp)
@@ -91,22 +91,21 @@ def read_timestamp(filename: str) -> Optional[arrow.Arrow]:
     return None
 
 
-def write_timestamp(filename: str) -> None:
+def write_timestamp(filename: str, time: arrow.Arrow) -> None:
     """
     Write current time as timestamp to file specified by filename.
     Use TIMESTAMP_FILE if filename is not specified.
 
     Params:
       filename: File containing the timestamp.
+      timestamp: Time to write
     """
     if filename:
         with open(filename, "w") as f:
-            timestamp = arrow.now().timestamp()
-            f.write(str(timestamp))
+            f.write(str(time.timestamp()))
     else:
         with open(TIMESTAMP_FILE, "w") as f:
-            timestamp = arrow.now().timestamp()
-            f.write(str(timestamp))
+            f.write(str(time.timestamp()))
 
 
 if __name__ == "__main__":
@@ -118,12 +117,10 @@ if __name__ == "__main__":
     nextcloud = Nextcloud(
         config.get("nextcloud_url"),
         config.get("nextcloud_username"),
-        config.get("nextcloud_password")
+        config.get("nextcloud_password"),
+        timestamp
     )
     bot = telegram.Bot(token=config.get("bot_api_token"))
-
-    # Write timestamp to file
-    write_timestamp(config.get("timestamp_file"))
 
     for folder in config.get("folders").values():
         files = nextcloud.collect_new_files(folder.get("path"), timestamp)
@@ -149,3 +146,6 @@ if __name__ == "__main__":
                     )
             except telegram.error.RetryAfter:
                 sleep(30)
+
+        # Write timestamp to file
+        write_timestamp(config.get("timestamp_file"), nextcloud.newest_file_timestamp)
