@@ -1,12 +1,15 @@
 """
 Nextcloud wrapper using nextcloud-api-wrapper.
 """
+import logging
 from typing import List, Optional, Tuple
 
 import arrow
 import nextcloud
 
 NEXTCLOUD_TIME_FORMAT="ddd, DD MMM YYYY HH:mm:ss ZZZ"
+
+log = logging.getLogger(__name__)
 
 
 class Nextcloud:
@@ -57,13 +60,16 @@ class Nextcloud:
         """
         files: List[Tuple[str, bytes]] = []
         folder = self._nextcloud.get_folder(path)
+        log.debug("Listing folder '{}' on nextcloud server '{}'".format(folder, self._nextcloud.url))
         for file in folder.list():
             last_modified = arrow.get(file.last_modified, NEXTCLOUD_TIME_FORMAT)
             if not timestamp:
+                log.debug("No timestamp specified! Collecting file '{}'".format(file.basename()))
                 files.append((file.basename(), file.fetch_file_content()))
             elif last_modified > timestamp:
                 if last_modified > self.newest_file_timestamp:
                     self.newest_file_timestamp = last_modified
+                log.debug("File is newer than '{}'! Collecting file '{}'".format(timestamp.humanize(), file.basename()))
                 files.append((file.basename(), file.fetch_file_content()))
 
         return files
