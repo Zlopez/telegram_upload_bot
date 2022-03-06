@@ -1,7 +1,7 @@
 """
 Nextcloud wrapper using nextcloud-api-wrapper.
 """
-from typing import Optional, List
+from typing import List, Optional, Tuple
 
 import arrow
 import nextcloud
@@ -40,23 +40,30 @@ class Nextcloud:
         )
         self.newest_file_timestamp = timestamp
 
-    def collect_new_files(self, path: str, timestamp: Optional[arrow.Arrow]) -> List[str]:
+    def collect_new_files(
+            self,
+            path: str,
+            timestamp: Optional[arrow.Arrow]
+    ) -> List[Tuple[str, bytes]]:
         """
         Collect all files in the path that are newer than timestamp.
 
         Params:
           path: Path on the nextcloud server
           timestamp: Timestamp to from to look for newer files
+
+        Returns:
+          List of files containing tuples (filename, file as bytes).
         """
-        files: List[bytes] = []
+        files: List[Tuple[str, bytes]] = []
         folder = self._nextcloud.get_folder(path)
         for file in folder.list():
             last_modified = arrow.get(file.last_modified, NEXTCLOUD_TIME_FORMAT)
             if not timestamp:
-                files.append(file.fetch_file_content())
+                files.append((file.basename(), file.fetch_file_content()))
             elif last_modified > timestamp:
                 if last_modified > self.newest_file_timestamp:
                     self.newest_file_timestamp = last_modified
-                files.append(file.fetch_file_content())
+                files.append((file.basename(), file.fetch_file_content()))
 
         return files

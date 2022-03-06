@@ -128,7 +128,7 @@ if __name__ == "__main__":
             "Album: {}\n"
             "[Link na album]({})"
         ).format(folder.get("name"), folder.get("link"))
-        for file in files:
+        for filename, file in files:
             try:
                 if filetype.is_image(file):
                     bot.send_photo(
@@ -145,7 +145,21 @@ if __name__ == "__main__":
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )
             except telegram.error.RetryAfter:
+                # If we send too much files let's wait a little
                 sleep(30)
+            except telegram.error.BadRequest:
+                # If this happen let's try to send the file again as document
+                # If this fails just continue with next file
+                try:
+                    bot.send_document(
+                        config.get("telegram_chat_id"),
+                        file,
+                        filename=filename,
+                        caption=caption,
+                        parse_mode=telegram.ParseMode.MARKDOWN_V2
+                    )
+                except telegram.error.BadRequest:
+                    continue
 
         # Write timestamp to file
         write_timestamp(config.get("timestamp_file"), nextcloud.newest_file_timestamp)
