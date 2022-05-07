@@ -2,5 +2,6 @@ argparse
 arrow
 filetype
 nextcloud-api-wrapper
+Pillow
 python-telegram-bot
 toml

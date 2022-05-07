@@ -1,6 +1,7 @@
 """
 This is a main source file for telegram_upload_bot.
 """
+import io
 import logging
 import os
 import sys
@@ -9,19 +10,27 @@ from typing import Optional
 import argparse
 import arrow
 import filetype
+from PIL import Image
 import telegram
 import toml
 
 from nextcloud_wrapper import Nextcloud
 
-FILE="test.jpg"
-
 CONFIG_FILE="config.toml"
 
 TIMESTAMP_FILE = "timestamp"
 
+# Limit for image is 10 MB
+IMAGE_SIZE_LIMIT = 10485760
+
+# Limit for video is 50 MB
+VIDEO_SIZE_LIMIT = 52428800
+
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
+
+# For debugging
+#log.level = logging.DEBUG
 
 
 def parse_arguments(args: list) -> argparse.Namespace:
@@ -142,10 +151,24 @@ if __name__ == "__main__":
         for filename, file in files:
             try:
                 if filetype.is_image(file):
+                    image = Image.open(io.BytesIO(file))
+                    log.debug("Size of the image: {} MB".format(
+                        sys.getsizeof(file)/1024/1024
+                    ))
+                    if sys.getsizeof(file) > IMAGE_SIZE_LIMIT:
+                        log.info("Image is bigger than telegram size limit. Resizing...")
+                        image_bytes = io.BytesIO()
+                        image.save(image_bytes, "jpeg")
+                        while sys.getsizeof(image_bytes) > IMAGE_SIZE_LIMIT:
+                            image = image.reduce(2)
+                            image.save(image_bytes, "jpeg")
+                        log.debug("New size of the image: {} MB".format(
+                            sys.getsizeof(image_bytes)/1024/1024
+                        ))
                     log.info("File '{}' is image. Uploading to telegram.".format(filename))
                     bot.send_photo(
                         config.get("telegram_chat_id"),
-                        file,
+                        image.tobytes(),
                         caption=caption,
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )
