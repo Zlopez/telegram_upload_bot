@@ -152,13 +152,13 @@ if __name__ == "__main__":
             try:
                 if filetype.is_image(file):
                     image = Image.open(io.BytesIO(file))
+                    image_bytes = io.BytesIO()
+                    image.save(image_bytes, "jpeg")
                     log.debug("Size of the image: {} MB".format(
                         sys.getsizeof(file)/1024/1024
                     ))
                     if sys.getsizeof(file) > IMAGE_SIZE_LIMIT:
                         log.info("Image is bigger than telegram size limit. Resizing...")
-                        image_bytes = io.BytesIO()
-                        image.save(image_bytes, "jpeg")
                         while sys.getsizeof(image_bytes) > IMAGE_SIZE_LIMIT:
                             image = image.reduce(2)
                             image.save(image_bytes, "jpeg")
