@@ -168,7 +168,7 @@ if __name__ == "__main__":
                     log.info("File '{}' is image. Uploading to telegram.".format(filename))
                     bot.send_photo(
                         config.get("telegram_chat_id"),
-                        image_bytes.getValue(),
+                        image_bytes.getvalue(),
                         caption=caption,
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )
