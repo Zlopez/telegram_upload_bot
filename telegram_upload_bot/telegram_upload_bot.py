@@ -155,9 +155,9 @@ if __name__ == "__main__":
                     image_bytes = io.BytesIO()
                     image.save(image_bytes, "jpeg")
                     log.debug("Size of the image: {} MB".format(
-                        sys.getsizeof(file)/1024/1024
+                        sys.getsizeof(image_bytes)/1024/1024
                     ))
-                    if sys.getsizeof(file) > IMAGE_SIZE_LIMIT:
+                    if sys.getsizeof(image_bytes) > IMAGE_SIZE_LIMIT:
                         log.info("Image is bigger than telegram size limit. Resizing...")
                         while sys.getsizeof(image_bytes) > IMAGE_SIZE_LIMIT:
                             image = image.reduce(2)
@@ -168,7 +168,7 @@ if __name__ == "__main__":
                     log.info("File '{}' is image. Uploading to telegram.".format(filename))
                     bot.send_photo(
                         config.get("telegram_chat_id"),
-                        image_bytes,
+                        image_bytes.getValue(),
                         caption=caption,
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )
