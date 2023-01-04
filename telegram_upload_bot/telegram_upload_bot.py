@@ -184,9 +184,10 @@ if __name__ == "__main__":
                 # If we send too much files let's wait a little
                 log.info("Too much files sent at once. Wait for 30 seconds.")
                 sleep(30)
-            except telegram.error.BadRequest:
+            except telegram.error.BadRequest as exc:
                 # If this happen let's try to send the file again as document
                 # If this fails just continue with next file
+                log.exception(exc)
                 log.info("Error when sending file, let's try to send it again as document.")
                 try:
                     bot.send_document(
