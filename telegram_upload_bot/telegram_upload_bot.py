@@ -5,11 +5,13 @@ import io
 import logging
 import os
 import sys
+import tempfile
 from typing import Optional
 
 import argparse
 import arrow
 import filetype
+from moviepy.editor import VideoFileClip
 from PIL import Image
 import telegram
 import toml
@@ -173,10 +175,27 @@ if __name__ == "__main__":
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )
                 if filetype.is_video(file):
+                    log.debug("Size of the video: {} MB".format(
+                        sys.getsizeof(image_bytes)/1024/1024
+                    ))
+                    video = file
+                    if sys.getsizeof(video) > VIDEO_SIZE_LIMIT:
+                        log.info("Video file is bigger than telegram size limit. Resizing...")
+                        clip = VideoFileClip(file)
+                        while sys.getsizeof(video) > VIDEO_SIZE_LIMIT:
+                            clip = clip.resize(0.5)
+                            with tempfile.TemporaryFile() as tmp_file:
+                                clip.write_videofile(tmp_file)
+
+                                video = open(tmp_file, "rb").read()
+                        log.debug(
+                            "New size of video file: {} MB".format(
+                                sys.getsizeof(video)/1024/1024)
+                        )
                     log.info("File '{}' is video. Uploading to telegram.".format(filename))
                     bot.send_video(
                         config.get("telegram_chat_id"),
-                        file,
+                        video,
                         caption=caption,
                         parse_mode=telegram.ParseMode.MARKDOWN_V2
                     )

@@ -1,6 +1,7 @@
 argparse
 arrow
 filetype
+moviepy
 nextcloud-api-wrapper
 Pillow
 python-telegram-bot
