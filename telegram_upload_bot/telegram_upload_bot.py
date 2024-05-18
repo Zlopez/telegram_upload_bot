@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import tempfile
+import time
 from typing import Optional
 
 import argparse
@@ -202,7 +203,7 @@ if __name__ == "__main__":
             except telegram.error.RetryAfter:
                 # If we send too much files let's wait a little
                 log.info("Too much files sent at once. Wait for 30 seconds.")
-                sleep(30)
+                time.sleep(30)
             except telegram.error.BadRequest as exc:
                 # If this happen let's try to send the file again as document
                 # If this fails just continue with next file
