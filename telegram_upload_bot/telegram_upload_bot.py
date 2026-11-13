@@ -12,7 +12,7 @@ from typing import Optional
 import argparse
 import arrow
 import filetype
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 from PIL import Image
 import telegram
 import toml
