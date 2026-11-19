@@ -1,6 +1,7 @@
 """
 This is a main source file for telegram_upload_bot.
 """
+import asyncio
 import io
 import logging
 import os
@@ -126,7 +127,10 @@ def write_timestamp(filename: str, time: arrow.Arrow) -> None:
             f.write(str(time.timestamp()))
 
 
-if __name__ == "__main__":
+async def main():
+    """
+    Main function.
+    """
     log.debug("Parsing arguments '{}'".format(sys.argv[1:]))
     args = parse_arguments(sys.argv[1:])
     config = read_config(args.config)
@@ -169,12 +173,13 @@ if __name__ == "__main__":
                             sys.getsizeof(image_bytes)/1024/1024
                         ))
                     log.info("File '{}' is image. Uploading to telegram.".format(filename))
-                    bot.send_photo(
-                        config.get("telegram_chat_id"),
-                        image_bytes.getvalue(),
-                        caption=caption,
-                        parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
-                    )
+                    async with bot:
+                        await bot.send_photo(
+                            config.get("telegram_chat_id"),
+                            image_bytes.getvalue(),
+                            caption=caption,
+                            parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
+                        )
                 if filetype.is_video(file):
                     log.debug("Size of the video: {} MB".format(
                         sys.getsizeof(image_bytes)/1024/1024
@@ -194,12 +199,13 @@ if __name__ == "__main__":
                                 sys.getsizeof(video)/1024/1024)
                         )
                     log.info("File '{}' is video. Uploading to telegram.".format(filename))
-                    bot.send_video(
-                        config.get("telegram_chat_id"),
-                        video,
-                        caption=caption,
-                        parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
-                    )
+                    async with bot:
+                        await bot.send_video(
+                            config.get("telegram_chat_id"),
+                            video,
+                            caption=caption,
+                            parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
+                        )
             except telegram.error.RetryAfter:
                 # If we send too much files let's wait a little
                 log.info("Too much files sent at once. Wait for 30 seconds.")
@@ -210,13 +216,14 @@ if __name__ == "__main__":
                 log.exception(exc)
                 log.info("Error when sending file, let's try to send it again as document.")
                 try:
-                    bot.send_document(
-                        config.get("telegram_chat_id"),
-                        file,
-                        filename=filename,
-                        caption=caption,
-                        parse_mode=telegram.ParseMode.MARKDOWN_V2
-                    )
+                    async with bot:
+                        await bot.send_document(
+                            config.get("telegram_chat_id"),
+                            file,
+                            filename=filename,
+                            caption=caption,
+                            parse_mode=telegram.ParseMode.MARKDOWN_V2
+                        )
                 except telegram.error.BadRequest as exc:
                     log.error("Couldn't upload the file, skip it.")
                     log.exception(exc)
@@ -233,3 +240,6 @@ if __name__ == "__main__":
         log.info("Wrote timestamp '{}' to timestamp file '{}'".format(
             nextcloud.newest_file_timestamp.humanize(), config.get("timestamp_file"))
         )
+
+if __name__ == "__main__":
+    asyncio.run(main())
