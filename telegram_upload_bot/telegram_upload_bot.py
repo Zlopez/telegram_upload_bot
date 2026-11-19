@@ -173,7 +173,7 @@ if __name__ == "__main__":
                         config.get("telegram_chat_id"),
                         image_bytes.getvalue(),
                         caption=caption,
-                        parse_mode=telegram.ParseMode.MARKDOWN_V2
+                        parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
                     )
                 if filetype.is_video(file):
                     log.debug("Size of the video: {} MB".format(
@@ -198,7 +198,7 @@ if __name__ == "__main__":
                         config.get("telegram_chat_id"),
                         video,
                         caption=caption,
-                        parse_mode=telegram.ParseMode.MARKDOWN_V2
+                        parse_mode=telegram.constants.ParseMode.MARKDOWN_V2
                     )
             except telegram.error.RetryAfter:
                 # If we send too much files let's wait a little
